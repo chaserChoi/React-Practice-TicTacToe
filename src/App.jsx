@@ -8,7 +8,12 @@ import { WINNING_COMBINATIONS } from "./winning-combination";
 
 import './index.css';
 
-const initialGameBoard = [
+const PLAYERS = {
+  X: 'Player 1',
+  O: 'Player 2',
+};
+
+const INITIAL_GAME_BOARD = [
     [null, null, null],
     [null, null, null], 
     [null, null, null],
@@ -25,11 +30,46 @@ function deriveActivePlayer(gameTurns) {
     return currentPlayer;
 }
 
+// 95. 컴포넌트 개선
+function deriveGameBoard(gameTurns) {
+  let gameBoard = [...INITIAL_GAME_BOARD.map((array) => [...array])];
+
+  for (const turn of gameTurns) {
+    const { square, player } = turn;
+    const { row, col } = square;
+
+    gameBoard[row][col] = player;
+  }
+
+  return gameBoard;
+}
+
+// 95. 컴포넌트 개선
+function deriveWinner(gameBoard, players) {
+  let winner = null;
+
+  for (const combination of WINNING_COMBINATIONS) {
+    const firstSquareSymbol =
+      gameBoard[combination[0].row][combination[0].column];
+    const secondSquareSymbol =
+      gameBoard[combination[1].row][combination[1].column];
+    const thirdSquareSymbol =
+      gameBoard[combination[2].row][combination[2].column];
+
+    if (
+      firstSquareSymbol &&
+      firstSquareSymbol === secondSquareSymbol &&
+      firstSquareSymbol === thirdSquareSymbol
+    ) {
+      winner = players[firstSquareSymbol];
+    }
+  }
+
+  return winner;
+}
+
 function App() {
-  const [ players, setPlayers ] = useState({
-    'X': 'Player 1',
-    'O': 'Player 2',
-  });
+  const [ players, setPlayers ] = useState(PLAYERS);
   const [ gameTurns, setGameTurns ] = useState([]);
   // 89. 계산된 값 끌어올리기
   // 밑의 코드는 동일한 내용(gameTurns)을 반복하기 때문에 불필요함
@@ -45,33 +85,39 @@ function App() {
 
   // 89. 계산된 값 끌어올리기
   //GameBoard 컴포넌트에서 코드를 가져옴
-  let gameBoard = [...initialGameBoard.map(array => [...array])];
+  // let gameBoard = [...initialGameBoard.map(array => [...array])];
 
-  for (const turn of gameTurns) {
-    const { square, player } = turn;
-    const { row, col } = square;
+  // for (const turn of gameTurns) {
+  //   const { square, player } = turn;
+  //   const { row, col } = square;
 
-    gameBoard[row][col] = player;
-  }
+  //   gameBoard[row][col] = player;
+  // }
 
-  let winner = null;
+  // 95. 컴포넌트 개선
+  const gameBoard = deriveGameBoard(gameTurns);
 
   // 89, 90. 계산된 값에서 새로운 값 계산
-  for (const combination of WINNING_COMBINATIONS) {
-    const firstSquareSymbol =
-      gameBoard[combination[0].row][combination[0].column];
-    const secondSquareSymbol =
-      gameBoard[combination[1].row][combination[1].column];
-    const thirdSquareSymbol =
-      gameBoard[combination[2].row][combination[2].column];
+  // let winner = null;
 
-    if (firstSquareSymbol && 
-      firstSquareSymbol === secondSquareSymbol && 
-      firstSquareSymbol === thirdSquareSymbol
-    ) {
-      winner = players[firstSquareSymbol];
-    }
-  }
+  // for (const combination of WINNING_COMBINATIONS) {
+  //   const firstSquareSymbol =
+  //     gameBoard[combination[0].row][combination[0].column];
+  //   const secondSquareSymbol =
+  //     gameBoard[combination[1].row][combination[1].column];
+  //   const thirdSquareSymbol =
+  //     gameBoard[combination[2].row][combination[2].column];
+
+  //   if (firstSquareSymbol && 
+  //     firstSquareSymbol === secondSquareSymbol && 
+  //     firstSquareSymbol === thirdSquareSymbol
+  //   ) {
+  //     winner = players[firstSquareSymbol];
+  //   }
+  // }
+
+  // 95. 컴포넌트 개선
+  const winner = deriveWinner(gameBoard, players);
 
   const hasDraw = gameTurns.length === 9 && !winner;
 
@@ -113,30 +159,27 @@ function App() {
     <main>
       <div id="game-container">
         <ol id="players" className="highlight-player">
-          <Player 
-            initialName="Player 1" 
-            symbol="X" 
-            isActive={activePlayer === 'X'} 
+          <Player
+            initialName={PLAYERS.X}
+            symbol="X"
+            isActive={activePlayer === "X"}
             onChangeName={handlePlayerNameChange}
           />
-          <Player 
-            initialName="Player 2" 
-            symbol="O" 
-            isActive={activePlayer === 'O'} 
+          <Player
+            initialName={PLAYERS.O}
+            symbol="O"
+            isActive={activePlayer === "O"}
             onChangeName={handlePlayerNameChange}
           />
         </ol>
         {/* 91. 게임오버 화면 구현 및 무승부 조건 구현 */}
-        {(winner || hasDraw) && <GameOver winner={winner} onRestart={handleRestart}/>}
-        <GameBoard 
-          onSelectSquare={handleSelectSquare} 
-          board={gameBoard}
-        />
+        {(winner || hasDraw) && (
+          <GameOver winner={winner} onRestart={handleRestart} />
+        )}
+        <GameBoard onSelectSquare={handleSelectSquare} board={gameBoard} />
       </div>
       {/* 85. 컴포넌트 간 상태(state) 공유 */}
-      <Log 
-        turns={gameTurns}
-      />
+      <Log turns={gameTurns} />
     </main>
   );
 }
