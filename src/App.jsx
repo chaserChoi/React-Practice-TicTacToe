@@ -26,6 +26,10 @@ function deriveActivePlayer(gameTurns) {
 }
 
 function App() {
+  const [ players, setPlayers ] = useState({
+    'X': 'Player 1',
+    'O': 'Player 2',
+  });
   const [ gameTurns, setGameTurns ] = useState([]);
   // 89. 계산된 값 끌어올리기
   // 밑의 코드는 동일한 내용(gameTurns)을 반복하기 때문에 불필요함
@@ -41,7 +45,7 @@ function App() {
 
   // 89. 계산된 값 끌어올리기
   //GameBoard 컴포넌트에서 코드를 가져옴
-  let gameBoard = initialGameBoard;
+  let gameBoard = [...initialGameBoard.map(array => [...array])];
 
   for (const turn of gameTurns) {
     const { square, player } = turn;
@@ -65,7 +69,7 @@ function App() {
       firstSquareSymbol === secondSquareSymbol && 
       firstSquareSymbol === thirdSquareSymbol
     ) {
-      winner = firstSquareSymbol;
+      winner = players[firstSquareSymbol];
     }
   }
 
@@ -91,15 +95,39 @@ function App() {
     });
   }
 
+  function handleRestart() {
+    setGameTurns([]);
+  }
+
+  // 93. 플레이어 이름 변경
+  function handlePlayerNameChange(symbol, newName) {
+    setPlayers(prevPlayers => {
+      return {
+        ...prevPlayers,
+        [symbol]: newName,
+      };
+    });
+  }
+
   return (
     <main>
       <div id="game-container">
         <ol id="players" className="highlight-player">
-          <Player initialName="Player 1" symbol="X" isActive={activePlayer === 'X'} />
-          <Player initialName="Player 2" symbol="O" isActive={activePlayer === 'O'} />
+          <Player 
+            initialName="Player 1" 
+            symbol="X" 
+            isActive={activePlayer === 'X'} 
+            onChangeName={handlePlayerNameChange}
+          />
+          <Player 
+            initialName="Player 2" 
+            symbol="O" 
+            isActive={activePlayer === 'O'} 
+            onChangeName={handlePlayerNameChange}
+          />
         </ol>
         {/* 91. 게임오버 화면 구현 및 무승부 조건 구현 */}
-        {(winner || hasDraw) && <GameOver winner={winner} />}
+        {(winner || hasDraw) && <GameOver winner={winner} onRestart={handleRestart}/>}
         <GameBoard 
           onSelectSquare={handleSelectSquare} 
           board={gameBoard}
