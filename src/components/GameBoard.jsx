@@ -1,21 +1,21 @@
 // import { useState } from "react";
 
-const initialGameBoard = [
-    [null, null, null],
-    [null, null, null], 
-    [null, null, null],
-];
+// const initialGameBoard = [
+//     [null, null, null],
+//     [null, null, null], 
+//     [null, null, null],
+// ];
 
-export default function GameBoard({ onSelectSquare, turns }) {
+export default function GameBoard({ onSelectSquare, board }) {
   // 84. Props(속성)에서 State(상태) 파생
-  let gameBoard = initialGameBoard;
+  // let gameBoard = initialGameBoard;
 
-  for (const turn of turns) {
-    const { square, player } = turn;
-    const { row, col } = square;
+  // for (const turn of turns) {
+  //   const { square, player } = turn;
+  //   const { row, col } = square;
 
-    gameBoard[row][col] = player;
-  }
+  //   gameBoard[row][col] = player;
+  // }
 
     // const [gameBoard, setGameBoard] = useState(initialGameBoard);
 
@@ -31,12 +31,18 @@ export default function GameBoard({ onSelectSquare, turns }) {
 
     return (
       <ol id="game-board">
-        {gameBoard.map((row, rowIndex) => (
+        {board.map((row, rowIndex) => (
           <li key={rowIndex}>
             <ol>
               {row.map((playerSymbol, colIndex) => (
                 <li key={colIndex}>
-                  <button onClick={() => onSelectSquare(rowIndex, colIndex)}>{playerSymbol}</button>
+                {/* 87. 조건적 버튼 비활성화 */}
+                  <button 
+                    onClick={() => onSelectSquare(rowIndex, colIndex)} 
+                    disabled={playerSymbol !== null}
+                  >
+                    {playerSymbol}
+                  </button>
                 </li>
               ))}
             </ol>
